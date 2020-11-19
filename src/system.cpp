@@ -7,40 +7,42 @@
 #include "process.h"
 #include "processor.h"
 #include "system.h"
-
-using std::set;
+#include "linux_parser.h"
 using std::size_t;
 using std::string;
-using std::vector;
 
 // TODO: Return the system's CPU
 Processor& System::Cpu() { return cpu_; }
 
 // TODO: Return a container composed of the system's processes
-vector<Process>& System::Processes() { 
-    vector<int> pids{LinuxParser::Pids()};
+std::vector<Process>& System::Processes() { 
+    std::vector<int> pids{LinuxParser::Pids()};
 
     // create a set
-    set<int> extant_pids;
+    std::set<int> active_pids;
 
-    for (Process const& process :Processes)
+    for (Process const& process :processes_)
     {
-        extant_pids.insert(process.Pid())
+        active_pids.insert(process.Pid())
     }
     
     //emplace all new processs
-    fpr(pid:pids){
-        if(extant_pids.find(pid) == extant_pids.end())
+    for(pid:pids)
+    {
+        if(active_pids.find(pid) == active_pids.end())
+        {
          processes_.emplace_back(pid);
+        }         
     }
 
     //update CPU utilization
-    for( auto& process:processes_){
-        Process.CpuUtilization_(LinuxParser::ActiveJiffies(process.)
-                                        Linux::Parser::Jiffies())
+    for( auto& process:processes_)
+    {
+        Process.CpuUtilization_(LinuxParser::ActiveJiffies(process.Pid()/
+                                        Linux::Parser::Jiffies());
     }
     
-    std::sort(processes_.begin(), processes_.end(), std::greater<> )
+    std::sort(processes_.begin(), processes_.end(), std::greater<Process>() )
     return processes_;
     }
 

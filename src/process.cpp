@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "process.h"
-
+#include "linux_parser.h"
 using std::string;
 using std::to_string;
 using std::vector;
@@ -31,15 +31,16 @@ std::string Process::Command(){
 }
 
 // Return the cpuUtilization of this process
-float Proess::Ram(){
+std::string Process::Ram(){
     return LinuxParser::Ram(pid_);
 }
 //  Return the aggregate CPU utilization
-float Processor::Utilization() { 
-    return std::stof(LinuxParser::CpuUtilization(pid_)); 
+float Process:: CpuUtilization() { 
+    return 0;
+    //std::stof(LinuxParser::CpuUtilization()); 
 }
 
 // overload the "less" than operator 
-bool Processor::operator<(Process const& a) const {
+bool Process::operator<(Process const& a) const {
     return cpuUtilization_ < a.cpuUtilization_;
 }
