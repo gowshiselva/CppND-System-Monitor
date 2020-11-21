@@ -1,17 +1,26 @@
 #include "processor.h"
 #include "linux_parser.h"
+#include <unistd.h>
 
 
 float Processor::Utilization() { 
     float utilization(0);
-    long activeJiffies=LinuxParser::ActiveJiffies();
-    long idleJiffies=LinuxParser::IdleJiffies();
-   // long  active_duration{activeJiffies-cached_activeJiffies};
-   // long  idle_duration{idleJiffies-cached_activeJiffies};
-   // long  duration{active_duration_idle_duration};
-   // utilization=static_cast<float>(active_duration*100/idle_duration)
-   utilization=static_cast<float>(activeJiffies*100/idleJiffies);
-   // cached_activeJiffies=activeJiffies;
-    //cached_idleJiffies=idleJiffies;
+    long totalJiffiesBefore=LinuxParser::Jiffies();
+    long activeJiffiesBefore=LinuxParser::Jiffies();
+
+    usleep(1000000); // sleep 100 milliseconds    
+
+    long totalJiffiesAfter=LinuxParser::Jiffies(); 
+    long activeJiffiesAfter=LinuxParser::Jiffies(); 
+    
+    long tDelta = totalJiffiesAfter - totalJiffiesBefore; // total Jiffies delta
+    long aDelta = activeJiffiesAfter - activeJiffiesBefore; // active Jiffies  delta
+
+    if (tDelta == 0) {
+      return 0.0;
+    }
+
+    utilization=static_cast<float>(aDelta/tDelta);
+
     return utilization;
 }
