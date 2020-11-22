@@ -8,8 +8,6 @@
 #include "processor.h"
 #include "system.h"
 #include "linux_parser.h"
-using std::size_t;
-using std::string;
 
 // TODO: Return the system's CPU
 Processor& System::Cpu() 
@@ -24,7 +22,7 @@ std::vector<Process>& System::Processes()
     processes_.clear();
     for (int pid: pids)
     {
-    processes_.push_back(Process(pid));
+    processes_.emplace_back(pid);
     }
 
     std::sort(processes_.begin(), processes_.end());

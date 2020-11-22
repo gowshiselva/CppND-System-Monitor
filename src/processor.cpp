@@ -3,8 +3,8 @@
 #include <unistd.h>
 
 
-float Processor::Utilization() { 
-    float utilization(0);
+double Processor::Utilization() { 
+    double utilization(0);
     long totalJiffiesBefore=LinuxParser::Jiffies();
     long activeJiffiesBefore=LinuxParser::Jiffies();
 
@@ -20,7 +20,7 @@ float Processor::Utilization() {
       return 0.0;
     }
 
-    utilization=static_cast<float>(aDelta/tDelta);
+    utilization=static_cast<double>(aDelta/tDelta);
 
     return utilization;
 }

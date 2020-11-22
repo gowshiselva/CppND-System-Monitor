@@ -36,8 +36,13 @@ std::string Process::Ram(){
 }
 //  Return the aggregate CPU utilization
 float Process:: CpuUtilization() { 
-    return 0;
-    //std::stof(LinuxParser::CpuUtilization()); 
+    //return 0;
+    return std::stof(LinuxParser::CpuUtilization()[0]); 
+}
+
+// Return the uptime
+long int Process::UpTime(){
+  return LinuxParser::UpTime();
 }
 
 // overload the "less" than operator 

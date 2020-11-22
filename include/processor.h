@@ -17,7 +17,7 @@ struct cpuData{
 };
 class Processor {
  public:
-  float Utilization();  // 
+  double Utilization();  // 
 
   // Declare any necessary private members
  private:
