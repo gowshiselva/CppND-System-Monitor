@@ -100,7 +100,6 @@ std::vector<int> LinuxParser::Pids() {
   closedir(directory);
   return pids;
 }
-
 //  Read and return the system memory utilization
 float LinuxParser::MemoryUtilization()
 { 
@@ -120,10 +119,46 @@ long LinuxParser::UpTime()
   
 }
 
+
+LinuxParser::cpuData LinuxParser::extractProcessData(int pid)
+{
+  std::stringstream filename;
+  filename << kProcDirectory << "/" << pid << "/" << kStatFilename;
+  std::ifstream filestream(filename.str());
+    LinuxParser::cpuData data;
+    if (filestream.is_open())
+     {
+      std::string line;
+      std::getline(filestream, line);
+      std::istringstream linestream(line);
+      std::string dummy;
+      long   usertime, systemtime, cutime, cstime, starttime;
+      for(int i = 0; i < 13; i++) {
+        linestream >> dummy;
+      }
+      linestream >> usertime >> systemtime >> cutime >> cstime;
+      for(int i = 0; i < 4; i++) linestream >> dummy;
+      linestream >> starttime;
+        data.seconds = LinuxParser::UpTime() - (starttime/sysconf(_SC_CLK_TCK));
+        data.totalTime = (usertime + systemtime + cutime + cstime)/sysconf(_SC_CLK_TCK);
+
+    }
+    return data;
+}
+
 //Read and return CPU utilization
 std::vector<std::string> LinuxParser::CpuUtilization()
 {
-  return std::vector<std::string>();
+ std::vector<int> extant_pids=LinuxParser::Pids();
+ std::vector<std::string> cpuUtils;
+ for (auto pid: extant_pids)
+ {
+   LinuxParser::cpuData data=LinuxParser::extractProcessData(pid);
+   float secondsd = data.seconds; // - previous.seconds;
+   float totald = data.totalTime;// - previous.totalTime;
+   cpuUtils.push_back(std::to_string(totald*1.0/secondsd));
+ }
+  return cpuUtils;
 }
 //  Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() { 
