@@ -5,13 +5,13 @@
 // contains the 
 
 
+
 class Processor {
  public:
-  double Utilization();  // 
+  double Utilization();  
 
-  // Declare any necessary private members
  private:
- //std::vector<cpuData*> cpudata_;
+ //processorData* processordata_;
 };
 
 #endif

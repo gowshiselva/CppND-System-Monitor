@@ -37,7 +37,7 @@ std::string Process::Ram(){
 //  Return the aggregate CPU utilization
 float Process:: CpuUtilization() { 
     //int p=pid();
-    return std::stof(LinuxParser::CpuUtilization()[pid_]); 
+    return std::stof(LinuxParser::CpuUtilization()[0]); 
 }
 
 // Return the uptime
