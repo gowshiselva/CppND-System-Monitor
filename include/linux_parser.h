@@ -4,7 +4,7 @@
 #include <fstream>
 #include <regex>
 #include <string>
-
+#include <unordered_map>
 namespace LinuxParser {
 // Paths
 const std::string kProcDirectory{"/proc/"};
@@ -87,7 +87,10 @@ struct processData
    float seconds;
    float totalTime;
 };
-std::vector<std::string> CpuUtilization();
+//std::vector<std::string> CpuUtilization();
+std::unordered_map<std::string, long> CpuUtilization();
+std::unordered_map<std::string, long> CpuUtilization( int pid);
+
 long Jiffies();
 long ActiveJiffies();
 long ActiveJiffies(int pid);

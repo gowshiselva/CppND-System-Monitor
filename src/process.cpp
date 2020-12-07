@@ -36,8 +36,19 @@ std::string Process::Ram(){
 }
 //  Return the aggregate CPU utilization
 float Process:: CpuUtilization() { 
-    //int p=pid();
-    return std::stof(LinuxParser::CpuUtilization()[0]); 
+   //total_time = utime + stime
+   std::unordered_map<std::string, long> cpu_utilization = LinuxParser::CpuUtilization(pid_);
+   long total_time = cpu_utilization["utime"] + cpu_utilization["stime"] + cpu_utilization["cutime"] + cpu_utilization["cstime"];
+
+   // seconds = uptime - (starttime / Hertz)
+   long seconds = Process::UpTime() - (cpu_utilization["starttime"] / sysconf(_SC_CLK_TCK));
+   
+   // cpu_usage = 100 * ((total_time / Hertz) / seconds)
+   long cpu_usage = 100 * ((total_time /sysconf(_SC_CLK_TCK)) / seconds );
+
+
+    //cpu_usage = 100 * ((total_time / Hertz) / seconds)
+  return static_cast<float>(cpu_usage);
 }
 
 // Return the uptime
