@@ -8,7 +8,7 @@
 
 class Processor {
  public:
-  double Utilization();  
+  float Utilization();  
 
  private:
  //processorData* processordata_;

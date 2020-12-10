@@ -283,7 +283,7 @@ long LinuxParser::ActiveJiffies() {
   
   return 0;
   */
-  long total_time = cpu_utilization["utime"] + cpu_utilization["stime"] + cpu_utilization["cutime"] + cpu_utilization["startime"];
+  long total_time = cpu_utilization["user"] + cpu_utilization["nice"] + cpu_utilization["system"] + cpu_utilization["irq"] + cpu_utilization["softirq"] + cpu_utilization["steal"];
   return total_time;
 } 
 
@@ -327,26 +327,10 @@ long LinuxParser::ActiveJiffies(int pid)
 // TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() 
 { 
-  std::string os, kernel, line;  
-  std::ifstream filestream(kProcDirectory + kStatFilename);
-  
-  if (filestream.is_open()) 
-  {      
-    std::istringstream linestream(line);
+  std::unordered_map<std::string, long> cpu_utilization = LinuxParser::CpuUtilization();
 
-    std::string cpu;
-    long user, nice, system, idle, iowait, irq, softirq, steal, guest, guestnice;
-    linestream >> cpu >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal >> guest >> guestnice;
-  
-    //long user_time = user - guest;
-    ///long nice_time = nicetime - guestnice;
-
-    long total_idle_time = idle + iowait;
-  
-    return total_idle_time;
-  }
- 
-  return 0; 
+  long idle_time = cpu_utilization["idle"] + cpu_utilization["iowait"];
+  return idle_time; 
 }
 
 //  Read and return the total number of processes

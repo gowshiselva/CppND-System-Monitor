@@ -1,25 +1,26 @@
 #include "processor.h"
 #include "linux_parser.h"
 #include <unistd.h>
+#include <math.h>       /* floor */
 
 
-double Processor::Utilization() { 
-    double utilization(0);
-    long totalJiffiesBefore=LinuxParser::Jiffies();
-    long activeJiffiesBefore=LinuxParser::Jiffies();
+float Processor::Utilization() { 
+    float utilization(0);
+    float totalJiffiesBefore=static_cast<float>(LinuxParser::Jiffies());
+    float activeJiffiesBefore=static_cast<float>(LinuxParser::ActiveJiffies());
 
-    usleep(1000000); // sleep 100 milliseconds    
+    usleep(100); // sleep 100 milliseconds    
 
-    long totalJiffiesAfter=LinuxParser::Jiffies(); 
-    long activeJiffiesAfter=LinuxParser::Jiffies(); 
+    float totalJiffiesAfter=static_cast<float>(LinuxParser::Jiffies()); 
+    float activeJiffiesAfter=static_cast<float>(LinuxParser::ActiveJiffies()); 
     
-    double tDelta = static_cast<double>(totalJiffiesAfter - totalJiffiesBefore); // total Jiffies delta
-    double aDelta = static_cast<double>(activeJiffiesAfter - activeJiffiesBefore); // active Jiffies  delta
+    float tDelta = totalJiffiesAfter - totalJiffiesBefore; // total Jiffies delta
+    float aDelta = activeJiffiesAfter - activeJiffiesBefore; // active Jiffies  delta
 
     if (tDelta == 0) {
       return 0.0;
     }
-    utilization=aDelta / tDelta;
+    utilization=floor(aDelta / tDelta);
 
     return utilization;
 }
