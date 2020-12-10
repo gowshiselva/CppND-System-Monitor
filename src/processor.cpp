@@ -13,14 +13,13 @@ double Processor::Utilization() {
     long totalJiffiesAfter=LinuxParser::Jiffies(); 
     long activeJiffiesAfter=LinuxParser::Jiffies(); 
     
-    long tDelta = totalJiffiesAfter - totalJiffiesBefore; // total Jiffies delta
-    long aDelta = activeJiffiesAfter - activeJiffiesBefore; // active Jiffies  delta
+    double tDelta = static_cast<double>(totalJiffiesAfter - totalJiffiesBefore); // total Jiffies delta
+    double aDelta = static_cast<double>(activeJiffiesAfter - activeJiffiesBefore); // active Jiffies  delta
 
     if (tDelta == 0) {
       return 0.0;
     }
-
-    utilization=static_cast<double>(aDelta/tDelta);
+    utilization=aDelta / tDelta;
 
     return utilization;
 }

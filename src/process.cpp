@@ -38,17 +38,27 @@ std::string Process::Ram(){
 float Process:: CpuUtilization() { 
    //total_time = utime + stime
    std::unordered_map<std::string, long> cpu_utilization = LinuxParser::CpuUtilization(pid_);
-   long total_time = cpu_utilization["utime"] + cpu_utilization["stime"] + cpu_utilization["cutime"] + cpu_utilization["cstime"];
+   float cpu_usage{0};
+   if(cpu_utilization.empty())
+   {   
+       cpu_usage = 0;
+       return cpu_usage;
+   }
+   //long total_time = cpu_utilization["utime"] + cpu_utilization["stime"] + cpu_utilization["cutime"] + cpu_utilization["cstime"];
+   float total_time = static_cast<float>(cpu_utilization["utime"] + cpu_utilization["stime"] + cpu_utilization["cutime"] + cpu_utilization["cstime"]);
 
    // seconds = uptime - (starttime / Hertz)
-   long seconds = Process::UpTime() - (cpu_utilization["starttime"] / sysconf(_SC_CLK_TCK));
+   float up_time = static_cast<float>(Process::UpTime());
+   float herts = static_cast<float>(sysconf(_SC_CLK_TCK));
+   float seconds = up_time - (static_cast<float>(cpu_utilization["starttime"]) / herts);
    
    // cpu_usage = 100 * ((total_time / Hertz) / seconds)
-   long cpu_usage = 100 * ((total_time /sysconf(_SC_CLK_TCK)) / seconds );
+   //cpu_usage =  ((static_cast<float>(total_time) /static_cast<float>(herts) ) / static_cast<float>(seconds));
+    cpu_usage =  (total_time / herts) / seconds;
 
 
     //cpu_usage = 100 * ((total_time / Hertz) / seconds)
-  return static_cast<float>(cpu_usage);
+  return cpu_usage;
 }
 
 // Return the uptime

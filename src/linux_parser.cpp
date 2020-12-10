@@ -194,17 +194,17 @@ std::unordered_map<std::string, long> LinuxParser::CpuUtilization(int pid)
 {
   std::unordered_map<std::string, long> cpu_utilization{};
 
-  std::stringstream filename;
-  filename << kProcDirectory << "\\" << pid << kStatFilename ;
+  std::stringstream filename; 
+  filename << kProcDirectory << "/" << pid << kStatFilename ;  
   std::ifstream filestream(filename.str());
-
+   
   if(filestream.is_open())
   {
     std::string line;
     std::getline(filestream, line);
     std::istringstream linestream(line);
     std::string dummy;
-    long utime, stime, cutime, cstime, start_time;
+    long utime{0}, stime{0}, cutime{0}, cstime{0}, start_time{0};
 
     for(auto i=0; i<13; ++i) linestream >> dummy;
     linestream >> utime >> stime >> cutime >> cstime;
@@ -225,8 +225,8 @@ std::unordered_map<std::string, long> LinuxParser::CpuUtilization(int pid)
 
 //  Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() {
-
-  return LinuxParser::IdleJiffies() + LinuxParser::ActiveJiffies();
+  long total_time = LinuxParser::IdleJiffies() + LinuxParser::ActiveJiffies();
+  return total_time;
   /*
   std::ifstream filestream(kProcDirectory + kStatFilename);
   
@@ -320,6 +320,7 @@ long LinuxParser::ActiveJiffies(int pid)
   */
  long total_time = cpu_utilization["utime"] +  cpu_utilization["stime"];
  total_time = total_time + cpu_utilization["cutime"] + cpu_utilization["cstime"];
+ 
  return total_time;
 }
 
@@ -401,7 +402,7 @@ std::string LinuxParser::User(int pid)
       linestream >> userName >> pwd >> currentUID;
       if (currentUID == uid)
         {          
-             return userName; 
+          return userName; 
         }
     }
   }
@@ -432,7 +433,7 @@ long LinuxParser::UpTime(int pid) {
   //  }
 
    
-    for (int i = 0; i < 22; ++i) filestream >> value;
+    for (int i = 0; i == 22; ++i) filestream >> value;
       return LinuxParser::UpTime() - std::stol(value) / sysconf(_SC_CLK_TCK); 
   }
   return up_time;
