@@ -5,22 +5,24 @@
 
 
 float Processor::Utilization() { 
+    cpu_ = LinuxParser::CpuUtilization();
+
     float utilization(0);
-    float totalJiffiesBefore=static_cast<float>(LinuxParser::Jiffies());
-    float activeJiffiesBefore=static_cast<float>(LinuxParser::ActiveJiffies());
+          
 
-    usleep(100); // sleep 100 milliseconds    
-
-    float totalJiffiesAfter=static_cast<float>(LinuxParser::Jiffies()); 
-    float activeJiffiesAfter=static_cast<float>(LinuxParser::ActiveJiffies()); 
     
-    float tDelta = totalJiffiesAfter - totalJiffiesBefore; // total Jiffies delta
-    float aDelta = activeJiffiesAfter - activeJiffiesBefore; // active Jiffies  delta
+    float prev_total_jiffies = 0;
+    float pre_active_jiffies = 0;
 
-    if (tDelta == 0) {
-      return 0.0;
-    }
-    utilization=floor(aDelta / tDelta);
+    usleep(1000); // sleep 100 milliseconds    
 
+    float post_total_jiffies = static_cast<float>(LinuxParser::Jiffies());
+    float post_active_jiffies = static_cast<float>(LinuxParser::ActiveJiffies());
+
+    float diff_active_jiffies = post_active_jiffies - pre_active_jiffies;
+    float diff_total_jiffies = post_total_jiffies - prev_total_jiffies;
+    
+    utilization =  diff_active_jiffies / diff_total_jiffies;
+    
     return utilization;
 }

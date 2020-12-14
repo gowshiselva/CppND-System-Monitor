@@ -5,6 +5,7 @@
 #include <iostream>
 #include "linux_parser.h"
 #include <sys/time.h>
+#include "format.h"
 
 using std::stof;
 using std::string;
@@ -158,7 +159,6 @@ std::unordered_map<std::string, long> LinuxParser::CpuUtilization()
  std::string user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice;
 
  std::ifstream filestream(kProcDirectory + kStatFilename);
-
  if (filestream.is_open())
   {
    while (std::getline(filestream, line)) 
@@ -167,7 +167,7 @@ std::unordered_map<std::string, long> LinuxParser::CpuUtilization()
     while (linestream >> key >> user >> nice >> system >> idle >> iowait 
                         >> irq >> softirq >> steal >> guest >>  guest_nice)
        {
-          if (key == "cpu")
+          if (key.compare("cpu"))
             {
           //cpuUtils = {user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice};
               cpu_utilization["user"]       = std::stol(user);
@@ -227,33 +227,7 @@ std::unordered_map<std::string, long> LinuxParser::CpuUtilization(int pid)
 long LinuxParser::Jiffies() {
   long total_time = LinuxParser::IdleJiffies() + LinuxParser::ActiveJiffies();
   return total_time;
-  /*
-  std::ifstream filestream(kProcDirectory + kStatFilename);
-  
-  if (filestream.is_open())
-  {
-    std::string line;
-    std::getline(filestream, line);
-    std::istringstream linestream(line);
-    long  cpu, usertime, nicetime, systemtime, idletime;
-    long  ioWait, irq, softIrq, steal, guest, guestnice;
-    ioWait = irq = softIrq = steal = guest = guestnice = 0;
-    linestream >> cpu >> usertime >> nicetime >> systemtime >> idletime >> ioWait >> irq >> softIrq >> steal >> guest >> guestnice;
-
-  // Guest time is already accounted in usertime
-    usertime = usertime - guest;
-    nicetime = nicetime - guestnice;
-
-      
-    long  idlealltime = idletime + ioWait;
-    long  systemalltime = systemtime + irq + softIrq;
-    long  virtalltime = guest + guestnice;
-    //long  totaltime = usertime + nicetime + systemalltime + idlealltime + steal + virtalltime;
-    long  jiffies = usertime + nicetime+ idlealltime + systemalltime +virtalltime;
-    return jiffies; 
-    }
-  return 0;
-  */
+ 
 }
 
 // Read and return the number of active jiffies for a PID
@@ -265,24 +239,7 @@ long LinuxParser::ActiveJiffies() {
   
   std::unordered_map<std::string, long> cpu_utilization = LinuxParser::CpuUtilization();
   
-  /*std::ifstream filestream(kProcDirectory + kUptimeFilename);
-  if(filestream.is_open())
-  {
-  std::string line;
-  std::getline(filestream, line);
-  std::istringstream linestream(line);
-  std::string dummy;
-  long uTime, sTime, cUtime, cStime, startTime;
-
-  for(auto i=0; i<13; ++i) linestream >> dummy;
-  linestream >> uTime >> sTime >> cUtime >> cStime;
-  for(auto i=0; i<4; ++i) linestream >> dummy;
-  linestream >> startTime;
-  return (uTime + sTime + cUtime + cStime +startTime);
-  }  
   
-  return 0;
-  */
   long total_time = cpu_utilization["user"] + cpu_utilization["nice"] + cpu_utilization["system"] + cpu_utilization["irq"] + cpu_utilization["softirq"] + cpu_utilization["steal"];
   return total_time;
 } 
@@ -290,41 +247,14 @@ long LinuxParser::ActiveJiffies() {
 long LinuxParser::ActiveJiffies(int pid)
 { 
   std::unordered_map<std::string, long> cpu_utilization=LinuxParser::CpuUtilization(pid);
-  /*
-  std::stringstream filename;
-  filename << kProcDirectory << "\\" << pid << kStatFilename ;
-  std::ifstream filestream(filename.str());
-
-  if(filestream.is_open())
-  {
-    std::string line;
-    std::getline(filestream, line);
-    std::istringstream linestream(line);
-    std::string dummy;
-    long uTime, sTime, cUtime, cStime, startTime;
-
-    for(auto i=0; i<13; ++i) linestream >> dummy;
-    linestream >> uTime >> sTime >> cUtime >> cStime;
-    for(auto i=0; i<4; ++i) linestream >> dummy;
-    linestream >> startTime;
-
-    long total_time = uTime + sTime;
-
-    total_time = total_time + cUtime + cStime; // determine the total time spent for the process
-
-    //long second = LinuxParser::UpTime() -(startTime / sysconf(_SC_CLK_TCK));
-
-
-    return total_time; // include the time from child process
-  }
-  */
- long total_time = cpu_utilization["utime"] +  cpu_utilization["stime"];
- total_time = total_time + cpu_utilization["cutime"] + cpu_utilization["cstime"];
+  
+  long total_time = cpu_utilization["utime"] +  cpu_utilization["stime"];
+  total_time = total_time + cpu_utilization["cutime"] + cpu_utilization["cstime"];
  
- return total_time;
+  return total_time;
 }
 
-// TODO: Read and return the number of idle jiffies for the system
+// Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() 
 { 
   std::unordered_map<std::string, long> cpu_utilization = LinuxParser::CpuUtilization();
@@ -355,8 +285,9 @@ std::string LinuxParser::Command(int pid)
 //Read and return the memory used by a process
 std::string LinuxParser::Ram(int pid)
 { 
-  std::string value = std::to_string(getValueByKey<int>(filterProcMem, std::to_string(pid) + kStatusFilename) / 1024);
-  return value; 
+  float value = getValueByKey<float>(filterProcMem, std::to_string(pid) + kStatusFilename);
+  std::string ram_utilization = Format::KBtoMB(value);
+  return ram_utilization; 
 }
 
 // Read and return the user ID associated with a process
@@ -395,6 +326,7 @@ std::string LinuxParser::User(int pid)
 
 // Read and return the uptime of a process
 //A short file that has only two numbers: how many seconds your box has been up, and how many seconds it has been idle.
+/*
 long LinuxParser::UpTime(int pid) { 
   std::string value;
   std::string line;
@@ -422,4 +354,8 @@ long LinuxParser::UpTime(int pid) {
   }
   return up_time;
   
+}
+*/
+long LinuxParser::UpTime(int pid[[maybe_unused]]) {
+  return 0;
 }

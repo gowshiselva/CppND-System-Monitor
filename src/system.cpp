@@ -12,8 +12,8 @@
 // Return the system's CPU
 Processor& System::Cpu() 
 { 
-    LinuxParser::CpuUtilization().clear();
-    return cpu_; }
+    return cpu_; 
+}
 
 // Return a container composed of the system's processes
 std::vector<Process>& System::Processes() 

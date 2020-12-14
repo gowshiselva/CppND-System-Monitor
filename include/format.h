@@ -5,6 +5,8 @@
 
 namespace Format {
 std::string ElapsedTime(long times); 
+std::string KBtoMB(float kb);
+
 };                                    
 
 #endif
