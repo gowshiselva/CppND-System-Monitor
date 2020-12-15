@@ -3,7 +3,7 @@ In this project I used the starter code for System Monitor Project in the Object
 
 
 
-![System Monitor](images/monitor.png)
+![System Monitor](images/monitor.gif)
 
 
 
